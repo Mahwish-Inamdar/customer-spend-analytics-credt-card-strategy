@@ -1,0 +1,166 @@
+
+-- 1. Top 10 Utilisation % by Demographics
+--  Sheet Title: Top 10 Avg Utilization by Gender, Occupation, and Age
+--  Why: To identify customer groups with the highest usage of their income on spending
+
+SELECT 
+    gender,
+    occupation,
+    age,
+    ROUND(AVG(spend), 2) AS avg_spend,
+    ROUND(AVG(avg_income), 2) AS avg_income,
+    ROUND(AVG(spend / avg_income * 100), 2) AS avg_utilisation_percentage
+FROM 
+    `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+WHERE 
+    avg_income IS NOT NULL AND avg_income != 0
+GROUP BY 
+    gender, occupation, age
+ORDER BY 
+    avg_utilisation_percentage DESC
+LIMIT 10;
+
+
+-- 2. DEMOGRAPHIC INSIGHTS
+
+-- Viz: Age-wise Spend
+--  Sheet Title: Spend by Age Group
+--  Why: Helps know which age group to target for credit cards
+
+SELECT 
+    age,
+    ROUND(SUM(spend), 2) AS total_spend,
+    COUNT(DISTINCT customer_id) AS customer_count,
+    ROUND(SUM(spend) / (
+        SELECT SUM(spend) 
+        FROM `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+    ) * 100, 2) AS spend_contribution_percentage
+FROM 
+    `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+GROUP BY 
+    age
+ORDER BY 
+    total_spend DESC;
+
+
+--  Viz: Spend by Gender & Category
+--  Sheet Title: Category-wise Spend by Gender
+--  Why: Gender-based offers can be designed
+
+SELECT 
+    gender,
+    category,
+    ROUND(SUM(spend), 2) AS total_spend
+FROM 
+    `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+GROUP BY 
+    gender, category
+ORDER BY 
+    gender, total_spend DESC;
+
+
+-- 3. SPENDING BEHAVIOR & OCCUPATION WISE ANALYSIS
+
+SELECT 
+  occupation,
+  ROUND(SUM(spend), 2) AS total_spend,
+  ROUND(AVG(spend), 2) AS avg_spend,
+  COUNT(DISTINCT customer_id) AS customer_count,
+  ROUND(SUM(spend) * 100 / (
+    SELECT SUM(spend) 
+    FROM `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+  ), 2) AS overall_spend_percentage
+FROM 
+  `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+GROUP BY 
+  occupation
+ORDER BY 
+  total_spend DESC;
+
+
+-- 4. SPENDING BEHAVIOR & CITY-WISE ANALYSIS
+
+--  Viz: Total Spend by City
+--  Sheet Title: City-wise Spend Distribution
+--  Why: Shows which cities are more active
+
+SELECT 
+    city,
+    ROUND(SUM(spend), 2) AS total_spend,
+    ROUND(AVG(spend), 2) AS avg_spend_per_customer,
+    COUNT(DISTINCT customer_id) AS customer_count,
+    ROUND(SUM(spend) * 100 / (SELECT SUM(spend) FROM `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`), 2) AS overall_spend_percentage
+FROM 
+    `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+GROUP BY 
+    city
+ORDER BY 
+    total_spend DESC;
+
+
+--  Viz: Category-wise Spend (Overall Popular Categories)
+--  Sheet Title: Top Spending Categories
+--  Why: To decide offers like Travel, Grocery cashback
+
+SELECT 
+    category,
+    ROUND(SUM(spend), 2) AS total_spend,
+    ROUND(AVG(spend), 2) AS avg_spend,
+    COUNT(DISTINCT customer_id) AS customer_count,
+    ROUND(SUM(spend) * 100 / (
+        SELECT SUM(spend) 
+        FROM `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+    ), 2) AS overall_spend_percentage
+FROM 
+    `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+GROUP BY 
+    category
+ORDER BY 
+    total_spend DESC;
+
+
+-- 5. PAYMENT CHANNEL INSIGHTS
+
+--  Viz: Spend by Payment Type
+--  Sheet Title: Preferred Payment Channels
+--  Why: Helps decide whether to promote UPI, Credit card, etc.
+
+SELECT 
+    payment_type,
+    ROUND(SUM(spend), 2) AS total_spend,
+    ROUND(AVG(spend), 2) AS avg_spend,
+    COUNT(DISTINCT customer_id) AS customer_count,
+    ROUND(SUM(spend) * 100 / (
+        SELECT SUM(spend) 
+        FROM `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+    ), 2) AS overall_spend_percentage
+FROM 
+    `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+GROUP BY 
+    payment_type
+ORDER BY 
+    total_spend DESC;
+
+
+-- 6. MONTHLY TRENDS
+
+--  Viz: Monthly Spend Trend
+--  Sheet Title: Monthly Spend Pattern
+--  Why: Shows how spending changes month by month
+--  Helps for seasonal offers
+
+SELECT 
+    month,
+    ROUND(SUM(spend), 2) AS total_spend,
+    ROUND(AVG(spend), 2) AS avg_spend,
+    COUNT(DISTINCT customer_id) AS customer_count,
+    ROUND(SUM(spend) * 100 / (
+        SELECT SUM(spend) 
+        FROM `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+    ), 2) AS overall_percentage
+FROM 
+    `my-first-project-441914.mitron_banking_customer_transaction_dataset.customer_spend_analysis`
+GROUP BY 
+    month
+ORDER BY 
+    total_spend DESC;
